@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sillage — suivre son rythme, pas le sien</title>
+<meta name="description" content="Espace de gestion sereine de vos followers TikTok : retraits à rythme humain, plages horaires et quotas." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+
+<header class="topbar">
+  <a class="brand" href="/">
+    <span class="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 32 32" fill="none"><path d="M6 23c4-9 16-13 20-15-3 8-13 15-20 15Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 28c3-6 9-11 15-13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </span>
+    <span class="brand-name">Sillage</span>
+  </a>
+  <nav class="topnav">
+    <a href="#workspace" class="active">Followers</a>
+    <a href="#rythme">Rythme</a>
+    <a href="#activite">Activité</a>
+  </nav>
+  <div class="topbar-right">
+    <span id="modeBadge" class="badge badge-muted">Mode démo</span>
+    <button id="accountBtn" class="account" type="button">
+      <span class="avatar avatar-account" id="accountAvatar">S</span>
+      <span class="account-meta">
+        <strong id="accountName">Studio Sillage</strong>
+        <small id="accountSub">non connecté</small>
+      </span>
+    </button>
+  </div>
+</header>
+
+<main class="page">
+  <!-- ---------- HERO / STATUT ---------- -->
+  <section class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow">Espace de gestion · TikTok</p>
+      <h1>On ne supprime pas en masse. <em>On retire, l’un après l’autre.</em></h1>
+      <p class="lede">
+        Sillage applique le même rythme qu’une personne : des gestes espacés, des pauses
+        imprévues, des heures d’activité, et un plafond qu’on ne franchit pas. Aucun
+        « burst », aucune cadence de robot.
+      </p>
+      <div class="hero-actions">
+        <button class="btn btn-primary" id="startBtn">Préparer une session</button>
+        <a class="btn btn-ghost" href="#rythme">Régler le rythme</a>
+      </div>
+    </div>
+
+    <aside class="status-card" aria-live="polite">
+      <div class="status-head">
+        <span class="pulse" id="pulseDot"></span>
+        <span id="sessionLabel">Aucune session</span>
+      </div>
+      <p class="status-sub" id="sessionSub">Le compte est au repos.</p>
+      <div class="status-grid">
+        <div><span class="k">Retraits aujourd’hui</span><strong id="statToday">0</strong><span class="cap" id="statCap">/ 60</span></div>
+        <div><span class="k">Prochaine action</span><strong id="statNext">—</strong></div>
+        <div><span class="k">Progression</span><strong id="statProgress">—</strong></div>
+      </div>
+      <div class="progress"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+      <div class="status-controls" id="sessionControls"></div>
+    </aside>
+  </section>
+
+  <!-- ---------- FILTRES ---------- -->
+  <section class="workspace" id="workspace">
+    <div class="workspace-head">
+      <div>
+        <h2>Followers</h2>
+        <p class="muted" id="followersMeta">—</p>
+      </div>
+      <div class="filters">
+        <label class="search">
+          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.6"/><path d="m13.5 13.5 3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <input id="searchInput" type="search" placeholder="Rechercher un @, un nom, un pays" autocomplete="off" />
+        </label>
+        <div class="segmented" id="statusFilter" role="tablist">
+          <button data-status="active" class="is-active" role="tab">À traiter</button>
+          <button data-status="muted" role="tab">En pause</button>
+          <button data-status="removed" role="tab">Retirés</button>
+          <button data-status="all" role="tab">Tous</button>
+        </div>
+        <select id="sortSelect" aria-label="Trier">
+          <option value="recent">Plus récents</option>
+          <option value="oldest">Plus anciens</option>
+          <option value="alpha">Alphabétique</option>
+          <option value="reach">Plus suivis</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="cooldown" id="cooldownBar" hidden>
+      <span class="cooldown-icon">⏳</span>
+      <div>
+        <strong id="cooldownTitle">Rythme respecté</strong>
+        <span id="cooldownText">Prochain retrait possible dans quelques secondes.</span>
+      </div>
+    </div>
+
+    <ul class="follower-list" id="followerList"></ul>
+    <div class="empty" id="emptyState" hidden>
+      <p class="empty-title">Rien à traiter ici.</p>
+      <p class="muted">Changez de filtre ou passez en mode démo pour explorer.</p>
+    </div>
+  </section>
+
+  <!-- ---------- RYTHME ---------- -->
+  <section class="rythme" id="rythme">
+    <div class="section-head">
+      <p class="eyebrow">Le réglage qui compte</p>
+      <h2>À quelle allure une personne ferait-elle ça&nbsp;?</h2>
+      <p class="muted lede-sm">
+        Ces curseurs ne sont pas de la décoration : le moteur les applique à chaque action,
+        y compris pour les sessions lancées depuis l’interface.
+      </p>
+    </div>
+
+    <div class="rythme-grid">
+      <form class="panel settings" id="settingsForm">
+        <div class="panel-head">
+          <h3>Profil de rythme</h3>
+          <span class="hint">modifiable à tout moment</span>
+        </div>
+        <div class="profiles" id="profilePicker">
+          <button type="button" data-profile="calme"><strong>Calme</strong><span>2–12 min entre deux gestes</span></button>
+          <button type="button" data-profile="naturel"><strong>Naturel</strong><span>1,5–9 min, pauses longues</span></button>
+          <button type="button" data-profile="actif"><strong>Soutenu</strong><span>1–6 min, toujours sous le plafond</span></button>
+        </div>
+
+        <div class="field">
+          <div class="field-label"><label for="maxOps">Plafond quotidien</label><output id="maxOpsOut">60</output></div>
+          <input id="maxOps" name="maxOpsPerDay" type="range" min="5" max="200" step="5" value="60" />
+          <p class="help">Sillage n’autorisera jamais plus de 200 retraits par jour, même si vous le demandez.</p>
+        </div>
+
+        <div class="field">
+          <div class="field-label"><label for="minGap">Intervalle minimum</label><output id="minGapOut">90 s</output></div>
+          <input id="minGap" name="minGapSeconds" type="range" min="45" max="600" step="15" value="90" />
+          <p class="help">Plancher absolu entre deux actions. En dessous de 45 s, ce n’est plus un humain.</p>
+        </div>
+
+        <div class="field">
+          <div class="field-label"><label for="maxGap">Latence maximale</label><output id="maxGapOut">9 min</output></div>
+          <input id="maxGap" name="maxGapMinutes" type="range" min="2" max="45" step="1" value="9" />
+          <p class="help">Au-delà, Sillage s’endort volontairement — comme quelqu’un qui referme l’app.</p>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <div class="field-label"><label for="breakEvery">Pause toutes les</label><output id="breakEveryOut">8</output></div>
+            <input id="breakEvery" name="breakEvery" type="range" min="3" max="40" step="1" value="8" />
+          </div>
+          <div class="field">
+            <div class="field-label"><label for="skipChance">Hésitation</label><output id="skipChanceOut">12 %</output></div>
+            <input id="skipChance" name="skipChancePct" type="range" min="0" max="40" step="1" value="12" />
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <div class="field-label"><label for="startHour">Début d’activité</label><output id="startHourOut">9 h</output></div>
+            <input id="startHour" name="activeStartHour" type="range" min="0" max="22" step="1" value="9" />
+          </div>
+          <div class="field">
+            <div class="field-label"><label for="endHour">Fin d’activité</label><output id="endHourOut">22 h</output></div>
+            <input id="endHour" name="activeEndHour" type="range" min="1" max="23" step="1" value="22" />
+          </div>
+        </div>
+
+        <label class="switch">
+          <input id="pauseOutside" type="checkbox" checked />
+          <span class="switch-ui"></span>
+          <span>Ne rien faire en dehors des heures d’activité</span>
+        </label>
+
+        <div class="panel-actions">
+          <button class="btn btn-primary" type="submit">Enregistrer le rythme</button>
+          <span class="save-state" id="saveState"></span>
+        </div>
+      </form>
+
+      <aside class="panel preview">
+        <div class="panel-head">
+          <h3>Simulation</h3>
+          <span class="hint">aucun appel réseau</span>
+        </div>
+        <p class="muted">Aperçu de la chronologie pour vos 12 prochaines cibles.</p>
+        <ol class="timeline" id="previewTimeline"></ol>
+        <div class="preview-foot">
+          <div><span class="k">Étalement</span><strong id="previewDuration">—</strong></div>
+          <div><span class="k">Écart moyen</span><strong id="previewAvg">—</strong></div>
+          <div><span class="k">Hésitations</span><strong id="previewSkips">—</strong></div>
+        </div>
+        <p class="notice" id="engineNotice">
+          ⚠️ L’API TikTok publique ne fournit aucun endpoint pour « retirer un follower » à votre place.
+          Sillage prépare le geste et le rythme ; le canal d’action doit être branché (voir Paramètres).
+        </p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ---------- ACTIVITÉ ---------- -->
+  <section class="activite" id="activite">
+    <div class="section-head">
+      <p class="eyebrow">Journal</p>
+      <h2>Ce qui s’est passé, sans flou</h2>
+    </div>
+    <div class="activity-grid">
+      <div class="panel">
+        <div class="panel-head"><h3>Dernières actions</h3><span class="hint" id="activityCount"></span></div>
+        <ul class="log" id="logList"></ul>
+      </div>
+      <aside class="panel honest">
+        <h3>Ce que Sillage ne fera pas</h3>
+        <ul class="checks">
+          <li>Se faire passer pour vous auprès de TikTok</li>
+          <li>Contourner les limites de l’API officielle</li>
+          <li>Retirer des followers sans canal autorisé</li>
+          <li>Continuer après votre plafond quotidien</li>
+        </ul>
+        <p class="muted">
+          Le retrait d’abonnés reste une action du titulaire du compte, dans l’app TikTok.
+          Sillage est l’assistant qui vous rend cohérent, pas un bot caché.
+        </p>
+      </aside>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <span>Sillage — projet local, données stockées sur votre machine.</span>
+    <span id="footMode"></span>
+  </footer>
+</main>
+
+<!-- ---------- MODALES ---------- -->
+<div class="modal-backdrop" id="modalBackdrop" hidden>
+  <div class="modal" id="modal" role="dialog" aria-modal="true"></div>
+</div>
+
+<div class="toast-stack" id="toastStack" aria-live="polite"></div>
+
+<script src="/app.js" type="module"></script>
+</body>
+</html>
